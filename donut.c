@@ -63,21 +63,30 @@ int main()
     return 0;
 }*/
 
+#define DISP_WIDTH 60   //width of the display 
+#define DISP_HEIGHT 20  //height of the display
+#define PI 3.14 //pi
+
 int k;
+float thetaSpacing = 0.07;
+float phiSpacing = 0.02;
+int distanceFromScreen = 8; //how far away the donut is rendered
+
 double sin(), cos();
 int main()
 {
     float A = 0, B = 0; //initialise the multipliers for rotations - these represent the axes about which the donut spins
-    float z[1760];  //z buffer
-    char b[1760];   //the donut
+    float z[DISP_WIDTH * DISP_HEIGHT];  //z buffer
+    char b[DISP_WIDTH * DISP_HEIGHT];   //the donut
     system("cls");  //clear the screen
     while(1) {
         //empty the arrays
-        memset(b, 32, 1760);
-        memset(z, 0, 7040); //this is the z-buffer - map the values over some multiple of the size of z times
-        //for each point on the taurus
-        for (float j = 0; j < 6.28; j += 0.07)    //6.28 = 2pi, theta spacing
-            for (float i = 0; i < 6.28; i += 0.02)    //6.28 = 2pi, phi spacing
+        memset(b, 32, DISP_WIDTH * DISP_HEIGHT);
+        memset(z, 0, DISP_WIDTH * DISP_HEIGHT * 4); //this is the z-buffer - map the values over each other multiple times times
+
+        //for each point on the donut
+        for (float j = 0; j < 2 * PI; j += thetaSpacing)
+            for (float i = 0; i < 2 * PI; i += phiSpacing)
             {
                 //create the donut
                 float c = sin(i), 
@@ -86,20 +95,20 @@ int main()
                     f = sin(j), 
                     g = cos(A), 
                     h = d + 3, //the constant here will scale the donut
-                    D = 2 / (c * h * e + f * g + 5), //the constant will determine how far away the donut is from the viewer
+                    D = 1 / (c * h * e + f * g + distanceFromScreen), 
                     l = cos(i), 
                     m = cos(B), 
                     n = sin(B),
                     t = c * h * g - f * e;
 
-                //finding the x and y values
-                int x = 40 + 30 * D * (l * h * m - t * n),
-                    y = 12 + 15 * D * (l * h * n + t * m), 
+                //finding the x and y values - the constants are half the size of the display
+                int x = (DISP_WIDTH / 2) + 30 * D * (l * h * m - t * n),
+                    y = (DISP_HEIGHT / 2) + 15 * D * (l * h * n + t * m), 
                     
-                    o = x + 80 * y, //convert x and y into points in the array
+                    o = x + DISP_WIDTH * y, //convert x and y into points in the array - the multiple is the width of the display
                     N = 8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n);  //lighting
 
-                if (22 > y && y > 0 && x > 0 && 80 > x && D > z[o])
+                if (DISP_HEIGHT > y && y > 0 && x > 0 && DISP_WIDTH > x && D > z[o])    //if the coordinate is within the bounds of the viewable space
                 {
                     z[o] = D;
                     b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
@@ -107,8 +116,8 @@ int main()
             }
         printf("\x1b[H");   //put the cursor back to the start of the screen to overwrite whats there
         //80 characters per line
-        for (k = 0; k < 1761; k++)
-            putchar(k % 80 ? b[k] : 10);
+        for (k = 0; k < ((DISP_HEIGHT * DISP_WIDTH) + 1); k++)
+            putchar(k % DISP_WIDTH ? b[k] : 10);
         A += 0.04;
         B += 0.02;
     }
