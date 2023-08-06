@@ -101,9 +101,9 @@ int main()
                     n = sin(B),
                     t = c * h * g - f * e;
 
-                //finding the x and y values - the constants are half the size of the display
+                //finding the x and y values
                 int x = (DISP_WIDTH / 2) + 30 * D * (l * h * m - t * n),
-                    y = (DISP_HEIGHT / 2) + 15 * D * (l * h * n + t * m), 
+                    y = (DISP_HEIGHT / 2) + 15 * D * (l * h * n + t * m),
                     
                     o = x + DISP_WIDTH * y, //convert x and y into points in the array - the multiple is the width of the display
                     N = 8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n);  //lighting
